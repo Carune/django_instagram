@@ -4,7 +4,7 @@
     <!-- Required meta tags -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
+    {% load static %}
     <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
@@ -24,7 +24,6 @@
 
     <title>Instagram</title>
 
-    <!-- css 프로필 이미지 동그랗게 -->
     <style>
       .box {
         width: 150px;
@@ -83,7 +82,7 @@
           min-width: 1000px;
         "
       >
-        <a class="navbar-brand" href="#"
+        <a class="navbar-brand" href="/main"
           ><img
             style="width: 100px"
             src="https://www.instagram.com/static/images/web/mobile_nav_type_logo-2x.png/1b47f9d0e595.png"
@@ -95,14 +94,52 @@
           placeholder="Search"
           aria-label="Search"
         />
-        <div>
-          <span class="material-symbols-outlined"> home </span>
-          <span class="material-symbols-outlined"> send </span>
-          <span id="navbar_add_box" class="material-symbols-outlined">
+        <div style="display: flex">
+          <a href="/main" style="color: black"
+            ><span
+              class="material-symbols-outlined"
+              style="padding-right: 10px"
+            >
+              home
+            </span></a
+          >
+          <span
+            id="navbar_add_box"
+            class="material-symbols-outlined"
+            style="padding-right: 10px"
+          >
             add_box
           </span>
-          <span class="material-symbols-outlined"> explore </span>
-          <span class="material-symbols-outlined"> favorite </span>
+          <span class="material-symbols-outlined" style="padding-right: 10px">
+            favorite
+          </span>
+          <div class="dropdown">
+            <a
+              href="#"
+              role="button"
+              id="dropdownMenuLink"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <div class="box" style="width: 28px; height: 28px">
+                <img
+                  class="profile"
+                  src="https://mblogthumb-phinf.pstatic.net/MjAyMTAzMTNfMjc0/MDAxNjE1NjQ2MDc4MjI5.bC-l7CFeSebLehzv2JKu9EWfA8CDXEoDsv-iazf48hgg.VregfY-mlSoY80jgRroOwDxTCu5BS20G_AwX8HGHshAg.JPEG.espart1226/6098c221cb9dba63fcd3d201c83ca2f3.jpg?type=w800"
+                />
+              </div>
+            </a>
+            <ul
+              class="dropdown-menu"
+              style="left: -157px"
+              aria-labelledby="dropdownMenuLink"
+            >
+              <li>
+                <a class="dropdown-item" href="/content/myprofile">프로필</a>
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li><a class="dropdown-item" href="/user/logout">로그아웃</a></li>
+            </ul>
+          </div>
         </div>
       </div>
     </nav>
@@ -148,7 +185,11 @@
           </div>
 
           <div>
-            <img style="width: 100%; margin: 10px 0" src="{{feed.image}}" />
+            <img
+              style="width: 100%; margin: 10px 0"
+              src="{% get_media_prefix %}{{feed.image}}"
+            />
+            <!-- get_media_prefix 로 django 내 이미지 링크 불러오기(asdf > http://12~~~:8000/media/asdf)-->
           </div>
           <div
             style="
@@ -211,8 +252,8 @@
             />
           </div>
           <div style="margin-left: 10px">
-            <div style="font-weight: bold">on_cloud_96</div>
-            <div style="text-align: left; color: gray">김지훈</div>
+            <div style="font-weight: bold">{{ user.nickname }}</div>
+            <div style="text-align: left; color: gray">{{ user.name }}</div>
           </div>
         </div>
         <div
@@ -555,9 +596,9 @@
       });
 
       $("#feed_share_button").click(function () {
-        let file = files;
+        let file = files[0];
         let image = files[0].name;
-        let content = $("#input_feed_conten").val();
+        let content = $("#input_feed_content ").val();
         let user_id = "on_cloud_96";
         let profile_image =
           "https://mblogthumb-phinf.pstatic.net/MjAyMTAzMTNfMjc0/MDAxNjE1NjQ2MDc4MjI5.bC-l7CFeSebLehzv2JKu9EWfA8CDXEoDsv-iazf48hgg.VregfY-mlSoY80jgRroOwDxTCu5BS20G_AwX8HGHshAg.JPEG.espart1226/6098c221cb9dba63fcd3d201c83ca2f3.jpg?type=w800";
@@ -584,6 +625,7 @@
           },
           complete: function () {
             console.log("완료");
+            location.replace("/main/");
           },
         });
       });
