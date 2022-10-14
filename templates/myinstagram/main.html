@@ -54,6 +54,7 @@
         background: rgba(0, 0, 0, 0.8);
         backdrop-filter: blur(1.5px);
         -webkit-backdrop-filter: blur(1.5px);
+        z-index: 100;
       }
 
       .modal_window {
@@ -72,7 +73,7 @@
   <body>
     <nav
       class="navbar navbar-expand-lg navbar-light bg-light"
-      style="position: fixed; width: 100%"
+      style="position: fixed; width: 100%; z-index: 99"
     >
       <div
         class="container-fluid"
@@ -106,7 +107,7 @@
           <span
             id="navbar_add_box"
             class="material-symbols-outlined"
-            style="padding-right: 10px"
+            style="padding-right: 10px; cursor: pointer"
           >
             add_box
           </span>
@@ -124,7 +125,7 @@
               <div class="box" style="width: 28px; height: 28px">
                 <img
                   class="profile"
-                  src="https://mblogthumb-phinf.pstatic.net/MjAyMTAzMTNfMjc0/MDAxNjE1NjQ2MDc4MjI5.bC-l7CFeSebLehzv2JKu9EWfA8CDXEoDsv-iazf48hgg.VregfY-mlSoY80jgRroOwDxTCu5BS20G_AwX8HGHshAg.JPEG.espart1226/6098c221cb9dba63fcd3d201c83ca2f3.jpg?type=w800"
+                  src="{% get_media_prefix %}{{ user.profile_image }}"
                 />
               </div>
             </a>
@@ -177,10 +178,13 @@
               class="box"
               style="width: 40px; height: 40px; margin-top: 10px"
             >
-              <img class="profile" src="{{feed.profile_image}}" />
+              <img
+                class="profile"
+                src="{% get_media_prefix %}{{feed.profile_image}}"
+              />
             </div>
             <div style="padding: 10px; font-size: 14px">
-              <b>{{feed.user_id}}</b>
+              <b>{{feed.nickname}}</b>
             </div>
           </div>
 
@@ -200,43 +204,83 @@
             "
           >
             <div>
-              <span class="material-symbols-outlined"> favorite </span>
+              <span
+                id="favorite_{{ feed.id }}"
+                feed_id="{{ feed.id }}"
+                class="favorite material-symbols-outlined"
+                style="cursor: pointer"
+              >
+                {% if feed.is_liked %} heart_plus {% else %} favorite{%endif%}
+              </span>
               <span class="material-symbols-outlined"> mode_comment </span>
               <span class="material-symbols-outlined"> send </span>
             </div>
             <div>
-              <span class="material-symbols-outlined"> bookmark </span>
+              <span
+                id="bookmark_{{ feed.id }}"
+                feed_id="{{ feed.id }}"
+                class="bookmark material-symbols-outlined"
+                style="cursor: pointer"
+              >
+                {% if feed.is_marked %} bookmark_added {% else %}
+                bookmark{%endif%}
+              </span>
             </div>
           </div>
           <div style="margin: 0 15px; text-align: left; font-size: 13px">
-            춘식이 <b>외 {{feed.like_count}}명</b>이 좋아합니다.
+            <b>{{feed.like_count}}명</b>이 좋아합니다.
           </div>
           <div style="margin: 0 15px; text-align: left; font-size: 16px">
-            <b>{{feed.user_id}}</b> {{feed.content}}
+            <b>{{feed.nickname}}</b> {{feed.content}}
           </div>
-          <div style="margin: 0 15px; text-align: left; font-size: 14px">
-            <b>doel1</b>오오
+
+          <div id="reply_list_{{ feed.id }}">
+            <!-- 댓글 -->
+            {% for reply in feed.reply_list %}
+            <div style="margin: 0 15px; text-align: left; font-size: 14px">
+              <b>{{ reply.nickname }}</b>{{ reply.reply_content}}
+            </div>
+            {% endfor %}
           </div>
-          <div style="margin: 0 15px; text-align: left; font-size: 14px">
-            <b>doel2</b>오오2
-          </div>
-          <div style="margin: 0 15px; text-align: left; font-size: 14px">
-            <b>doel3</b>오오3
-          </div>
-          <div>
+
+          <div
+            style="
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              border-top: solid 1px gray;
+              box-shadow: none;
+              margin-top: 10px;
+            "
+          >
             <input
+              id="reply_{{ feed.id }}"
               type="text"
               class="form-control"
               id="exampleFormControlInput1"
               placeholder="댓글 달기.."
-              style="box-shadow: none; border-top: solid 1px gray"
             />
+            <div
+              feed_id="{{ feed.id }}"
+              class="upload_reply"
+              style="width: 50px; color: cornflowerblue; font-weight: bold"
+            >
+              게시
+            </div>
           </div>
         </div>
         {% endfor %}
         <!-- 피드 박스 end 지점 -->
       </div>
-      <div style="width: 400px; height: 1000px; position: fixed; left: 60%">
+      <div
+        style="
+          z-index: 0;
+          width: 400px;
+          height: 1000px;
+          position: fixed;
+          left: 60%;
+        "
+      >
         <div
           style="
             display: flex;
@@ -248,7 +292,7 @@
           <div class="box" style="width: 70px; height: 70px">
             <img
               class="profile"
-              src="https://mblogthumb-phinf.pstatic.net/MjAyMTAzMTNfMjc0/MDAxNjE1NjQ2MDc4MjI5.bC-l7CFeSebLehzv2JKu9EWfA8CDXEoDsv-iazf48hgg.VregfY-mlSoY80jgRroOwDxTCu5BS20G_AwX8HGHshAg.JPEG.espart1226/6098c221cb9dba63fcd3d201c83ca2f3.jpg?type=w800"
+              src="{% get_media_prefix %}{{ user.profile_image }}"
             />
           </div>
           <div style="margin-left: 10px">
@@ -517,7 +561,12 @@
           <div style="width: 20px"></div>
           <div>새 게시물</div>
           <div style="width: 20px">
-            <span class="material-symbols-outlined"> close </span>
+            <span
+              class="modal_close material-symbols-outlined"
+              style="cursor: pointer"
+            >
+              close
+            </span>
           </div>
         </div>
 
@@ -549,7 +598,7 @@
           <div style="width: 20px"></div>
           <div>새 게시물</div>
           <div style="width: 20px">
-            <span class="material-symbols-outlined"> close </span>
+            <span class="modal_close material-symbols-outlined"> close </span>
           </div>
         </div>
         <!-- 모달 메인 (이미지 업로드 + 글) -->
@@ -590,6 +639,107 @@
     <script>
       let files;
 
+      $(".bookmark").click(function (event) {
+        let feed_id = event.target.attributes.getNamedItem("feed_id").value;
+        let bookmark_id = event.target.id;
+        let bookmark_text = $.trim($("#" + bookmark_id).html());
+        if (bookmark_text == "bookmark_added") {
+          $("#" + bookmark_id).html("bookmark");
+        } else {
+          $("#" + bookmark_id).html("bookmark_added");
+        }
+
+        $.ajax({
+          url: "/content/bookmark",
+          data: {
+            feed_id: feed_id,
+            bookmark_text: bookmark_text,
+          },
+          method: "POST",
+          success: function (data) {
+            console.log("성공");
+          },
+          error: function (request, status, error) {
+            console.log("에러");
+          },
+          complete: function () {
+            console.log("완료");
+          },
+        });
+      });
+
+      $(".favorite").click(function (event) {
+        let feed_id = event.target.attributes.getNamedItem("feed_id").value;
+        let favorite_id = event.target.id;
+        let favorite_text = $.trim($("#" + favorite_id).html());
+        if (favorite_text == "heart_plus") {
+          $("#" + favorite_id).html("favorite");
+        } else {
+          $("#" + favorite_id).html("heart_plus");
+        }
+
+        $.ajax({
+          url: "/content/like",
+          data: {
+            feed_id: feed_id,
+            favorite_text: favorite_text,
+          },
+          method: "POST",
+          success: function (data) {
+            console.log("성공");
+          },
+          error: function (request, status, error) {
+            console.log("에러");
+          },
+          complete: function () {
+            console.log("완료");
+          },
+        });
+      });
+
+      $(".upload_reply").click(function (event) {
+        // console.log(event.target.attributes.getNamedItem("feed_id").value); << feed_id의 값을 제대로 가져오는지 로그로 찍어보기
+        let feed_id = event.target.attributes.getNamedItem("feed_id").value;
+        let reply_id = "reply_" + feed_id;
+        let reply_content = $("#" + reply_id).val();
+        // console.log(reply_content); 댓글 내용 로그로 찍어보기
+
+        if (reply_content.length <= 0) {
+          alert("댓글을 입력하세요.");
+          return 0;
+        }
+
+        $.ajax({
+          url: "/content/reply",
+          data: {
+            feed_id: feed_id,
+            reply_content: reply_content,
+          },
+          method: "POST",
+          success: function (data) {
+            console.log("성공");
+            alert("댓글을 입력하였습니다.");
+            $("#reply_list_" + feed_id).append(
+              "<div style='margin: 0 15px; text-align: left; font-size: 14px'><b>{{ user.nickname }}</b>" +
+                reply_content +
+                "</div>"
+            );
+          },
+          error: function (request, status, error) {
+            console.log("에러");
+          },
+          complete: function () {
+            console.log("완료");
+            $("#" + reply_id).val("");
+          },
+        });
+      });
+
+      $(".modal_close").click(function () {
+        $("#first_modal").css({ display: "none" });
+        $("#second_modal").css({ display: "none" });
+      });
+
       $("#navbar_add_box").click(function () {
         $("#first_modal").css({ display: "flex" });
         $(document.body).css({ overflow: "hidden" });
@@ -599,17 +749,12 @@
         let file = files[0];
         let image = files[0].name;
         let content = $("#input_feed_content ").val();
-        let user_id = "on_cloud_96";
-        let profile_image =
-          "https://mblogthumb-phinf.pstatic.net/MjAyMTAzMTNfMjc0/MDAxNjE1NjQ2MDc4MjI5.bC-l7CFeSebLehzv2JKu9EWfA8CDXEoDsv-iazf48hgg.VregfY-mlSoY80jgRroOwDxTCu5BS20G_AwX8HGHshAg.JPEG.espart1226/6098c221cb9dba63fcd3d201c83ca2f3.jpg?type=w800";
 
         let fd = new FormData();
 
         fd.append("file", file);
         fd.append("image", image);
         fd.append("content", content);
-        fd.append("user_id", user_id);
-        fd.append("profile_image", profile_image);
 
         $.ajax({
           url: "/content/upload",
